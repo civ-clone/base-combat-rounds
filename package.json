@@ -1,6 +1,6 @@
 {
   "name": "@civ-clone/base-combat-rounds",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A combat resolver for battles fought in rounds: each side rolls below its strength, the loser of a round takes the winner's firepower as damage, and the battle ends when one side has no hit points left. With a hook for firepower changes, and the odds for computer players.",
   "repository": "git@github.com:civ-clone/base-combat-rounds.git",
   "keywords": [
