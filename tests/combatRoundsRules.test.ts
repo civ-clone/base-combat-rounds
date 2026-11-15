@@ -20,7 +20,7 @@ import UnitRegistry from '@civ-clone/core-unit/UnitRegistry';
 import World from '@civ-clone/core-world/World';
 import { Yield as YieldRule } from '@civ-clone/core-unit/Rules/Yield';
 import YieldValue from '@civ-clone/core-yield/Yield';
-import combatRoundsRules from '../lib/combatRoundsRules';
+import combatRoundsRules, { roundsStrengths } from '../lib/combatRoundsRules';
 import { expect } from 'chai';
 
 type Stats = [
@@ -245,5 +245,32 @@ describe('combatRoundsRules', (): void => {
     expect(
       resolver.validate(...([] as unknown as [any, any, any, any, any, any]))
     ).to.equal(false);
+  });
+});
+
+describe('roundsStrengths', (): void => {
+  it('should give the strengths the resolver fights at, after `CombatModifiers` and the share of a move', (): void => {
+    const { from, ruleRegistry, to, unit } = setUp(),
+      attacker = unit(from, [3, 0, 10, 1], 0.5),
+      defender = unit(to, [0, 2, 10, 1]);
+
+    ruleRegistry.register(
+      new CombatModifiers(
+        new Effect(
+          (
+            attacking: Unit,
+            defending: Unit,
+            terms: CombatTerms
+          ): CombatTerms => ({
+            ...terms,
+            defence: terms.defence / 2,
+          })
+        )
+      )
+    );
+
+    expect(roundsStrengths(ruleRegistry)(attacker, defender)).to.deep.equal([
+      1.5, 1,
+    ]);
   });
 });

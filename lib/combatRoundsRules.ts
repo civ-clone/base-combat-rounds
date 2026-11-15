@@ -11,6 +11,7 @@ import { fight, rollRange } from './rounds';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import Unit from '@civ-clone/core-unit/Unit';
+import strength from '@civ-clone/core-unit/strength';
 
 export interface CombatRoundsDependencies {
   ruleRegistry?: RuleRegistry;
@@ -88,6 +89,34 @@ export const resolveInRounds =
       attackerDamage,
       defenderDamage,
     };
+  };
+
+/**
+ * The strengths a battle between `attacker` and `defender` is fought at in rounds, as `[attack, defence]`: `strength`'s,
+ *  the attack times the share of a full attack the attacker has the moves for (`min(1, moves)`), after the
+ *  `CombatModifiers` rules. What base-unit-veteran-promotion's `strengths` option takes, so a promotion's chance is
+ *  worked out from the strengths the battle was fought at. Asked while `Defeated` is processed, before the attacker
+ *  spends its moves.
+ */
+export const roundsStrengths =
+  (ruleRegistry: RuleRegistry = ruleRegistryInstance) =>
+  (attacker: Unit, defender: Unit): [attack: number, defence: number] => {
+    const [attack, defence] = strength(attacker, defender, ruleRegistry),
+      { attack: modifiedAttack, defence: modifiedDefence } =
+        applyCombatModifiers(
+          ruleRegistry,
+          attacker,
+          defender,
+          combatTerms(
+            attacker,
+            defender,
+            attack,
+            defence,
+            Math.min(1, attacker.moves().value())
+          )
+        );
+
+    return [modifiedAttack, modifiedDefence];
   };
 
 /**

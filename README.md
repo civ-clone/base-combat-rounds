@@ -31,6 +31,9 @@ Deep-import the modules; there is no index.
     Only one resolver should match a battle (see core-unit's `CombatResolver`), so `criteria` narrows it if a game has
     another.
   - `resolveInRounds(ruleRegistry, strengthScale)`, its effect, and `combatTerms(...)`, the terms before modifiers.
+  - `roundsStrengths(ruleRegistry)`, `(attacker, defender) → [attack, defence]`: the strengths the resolver fights at,
+    after `CombatModifiers`. Pass it as base-unit-veteran-promotion's `strengths` option, so the chance of promotion
+    comes from the strengths the battle was really fought at.
   - The result's `attackerDamage` and `defenderDamage` are what each side lost in this battle, never more than it had
     left: `Attack` adds the winner's to its `damage()`.
 - `lib/CombatModifiers`:
@@ -49,4 +52,5 @@ Deep-import the modules; there is no index.
 
 ## Not here
 
-The barbarian defender's second roll and a single-round mode are left out: neither is needed yet.
+- The original's barbarian rule, where a defender rerolls and the attacker has to win a round twice, isn't modelled.
+- Nor is the original's single-round mode (a scenario setting).

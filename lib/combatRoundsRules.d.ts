@@ -48,6 +48,16 @@ export declare const resolveInRounds: (
   randomNumberGenerator: () => number
 ) => CombatResult;
 /**
+ * The strengths a battle between `attacker` and `defender` is fought at in rounds, as `[attack, defence]`: `strength`'s,
+ *  the attack times the share of a full attack the attacker has the moves for (`min(1, moves)`), after the
+ *  `CombatModifiers` rules. What base-unit-veteran-promotion's `strengths` option takes, so a promotion's chance is
+ *  worked out from the strengths the battle was fought at. Asked while `Defeated` is processed, before the attacker
+ *  spends its moves.
+ */
+export declare const roundsStrengths: (
+  ruleRegistry?: RuleRegistry
+) => (attacker: Unit, defender: Unit) => [attack: number, defence: number];
+/**
  * A ruleset's `CombatResolver` for battles fought in rounds. Register it only in a game that fights this way: with no
  *  resolver, `Attack` keeps its single roll.
  */
