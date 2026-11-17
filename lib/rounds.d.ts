@@ -41,6 +41,16 @@ export declare const roundOdds: (
   defenceRange: number
 ) => number;
 /**
+ * The chance that the attacker wins one round when the defender rolls again on each round the attacker wins
+ *  (`defenderRerolls`): it must win the first pair of rolls, and then not roll lower than the defender in the second
+ *  (`a2 < d2` gives the round back), so `roundOdds(a, d) × (1 − roundOdds(d, a))`. Without the reroll, `roundOdds`.
+ */
+export declare const rerolledRoundOdds: (
+  attackRange: number,
+  defenceRange: number,
+  defenderRerolls?: boolean
+) => number;
+/**
  * Whether the battle can't be won by either side's hits: the defender deals no damage, and the attacker either deals
  *  none or can never win a round. It would go on for ever, so the attacker loses it outright. That includes both
  *  firepowers being 0.
@@ -53,19 +63,25 @@ export declare const deadlocked: (
  * Fights one battle, drawing on `randomNumberGenerator` (a number in [0, 1)): each round the attacker's roll and then
  *  the defender's. An attacker with no hit points loses before any round, and one facing a defender with none wins; a
  *  deadlocked battle (see `deadlocked`) is lost by the attacker with no rounds and no draws.
+ *
+ * With `defenderRerolls`, a round the attacker wins is rolled again, the attacker's number and then the defender's,
+ *  and goes to the defender if the attacker's second roll is lower (OpenCiv2 `unit_resolve_attack_fight`). Without it,
+ *  nothing more is drawn.
  */
 export declare const fight: (
   attacker: Combatant,
   defender: Combatant,
-  randomNumberGenerator: () => number
+  randomNumberGenerator: () => number,
+  defenderRerolls?: boolean
 ) => FightResult;
 /**
  * The chance that the attacker wins the battle `fight` would fight, for a computer player weighing an attack: `a` and
  *  `d` are the ranges each side rolls below (see `rollRange`), `hpA` and `hpD` the hit points each has left, and `fpA`
- *  and `fpD` their firepowers.
+ *  and `fpD` their firepowers; `defenderRerolls` as `fight`'s.
  *
  * The attacker has to win `ceil(hpD / fpA)` rounds before the defender wins `ceil(hpA / fpD)`, at `roundOdds(a, d)` a
- *  round: the sum of the negative binomial terms for the defender winning 0 up to one fewer than it needs.
+ *  round (`rerolledRoundOdds` with the reroll): the sum of the negative binomial terms for the defender winning 0 up to
+ *  one fewer than it needs.
  */
 export declare const combatOdds: (
   a: number,
@@ -73,5 +89,6 @@ export declare const combatOdds: (
   hpA: number,
   hpD: number,
   fpA: number,
-  fpD: number
+  fpD: number,
+  defenderRerolls?: boolean
 ) => number;

@@ -80,7 +80,8 @@ export const resolveInRounds =
           hitPoints: defenderHitPoints,
           firepower: Math.max(0, terms.defenderFirepower),
         },
-        randomNumberGenerator
+        randomNumberGenerator,
+        terms.defenderRerolls === true
       );
 
     return {
