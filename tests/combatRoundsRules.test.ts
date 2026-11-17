@@ -218,6 +218,31 @@ describe('combatRoundsRules', (): void => {
     expect(events).to.deep.equal([['defeated', defender, attacker]]);
   });
 
+  it('should let the defender roll again when a `CombatModifiers` rule says so', (): void => {
+    const { events, from, ruleRegistry, to, unit, unitRegistry } = setUp(),
+      attacker = unit(from, [1, 0, 1, 1]),
+      defender = unit(to, [0, 1, 1, 1]),
+      // 7 v 0, then again 0 v 7: the defender takes the round back and wins.
+      { draws, rng } = scripted(0.9, 0.1, 0, 0.9);
+
+    ruleRegistry.register(
+      new CombatModifiers(
+        new Effect(
+          (
+            attacking: Unit,
+            defending: Unit,
+            terms: CombatTerms
+          ): CombatTerms => ({ ...terms, defenderRerolls: true })
+        )
+      )
+    );
+
+    new Attack(from, to, attacker, ruleRegistry, unitRegistry, rng).perform();
+
+    expect(draws.length).to.equal(4);
+    expect(events).to.deep.equal([['defeated', attacker, defender]]);
+  });
+
   it('should lose the attacker the battle when both firepowers are 0', (): void => {
     const { events, from, ruleRegistry, to, unit, unitRegistry } = setUp(),
       attacker = unit(from, [9, 0, 10, 0]),

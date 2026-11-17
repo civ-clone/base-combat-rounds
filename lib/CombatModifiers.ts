@@ -11,6 +11,12 @@ export interface CombatTerms {
   defence: number;
   attackerFirepower: number;
   defenderFirepower: number;
+  /**
+   * Whether the defender rolls again on each round the attacker wins: both sides roll a second time, and the round goes
+   *  to the defender after all if the attacker's second roll is lower (OpenCiv2 `unit_resolve_attack_fight`, the
+   *  barbarians' attack on a city). Off when not given.
+   */
+  defenderRerolls?: boolean;
 }
 
 /**

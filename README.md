@@ -14,6 +14,9 @@ winner's firepower as damage. Rounds go on until one side has no hit points left
   multiplied by `power`, the share of a full attack it has the moves for.
 - A range of 1 or less always rolls 0 and draws nothing from the generator.
 - Each side starts from the hit points it has left (`unit.hitPoints()`), so earlier damage counts.
+- A `CombatModifiers` rule can set `defenderRerolls`: then a round the attacker wins is rolled again, the attacker's
+  number first, and goes to the defender if the attacker's second roll is lower (Civilization II's barbarians attacking
+  a city). Without it nothing more is drawn.
 - If neither side's hits can end the battle (the defender's firepower is 0, and the attacker's is 0 or it can never win
   a round), the attacker loses it outright, with no rounds. That includes both firepowers being 0.
 - An attacker with no hit points loses before any round; one facing a defender with none wins.
@@ -38,19 +41,20 @@ Deep-import the modules; there is no index.
     left: `Attack` adds the winner's to its `damage()`.
 - `lib/CombatModifiers`:
   - `CombatModifiers`, a rule `(attacker, defender, terms) → terms | undefined` that changes `CombatTerms`
-    (`attack`, `defence`, `attackerFirepower`, `defenderFirepower`) for what `Strength` rules can't say: a ship
-    firing at a land unit, a ship caught in port, a defender whose firepower drops to 1 against a certain attacker.
+    (`attack`, `defence`, `attackerFirepower`, `defenderFirepower`, and `defenderRerolls`, off when not given) for
+    what `Strength` rules can't say: a ship firing at a land unit, a ship caught in port, a defender whose firepower
+    drops to 1 against a certain attacker, a defender who rolls again.
   - Unlike most rules these run one after another, in the registry's order: each matching rule sees, and is checked
     against, the terms the one before returned. `undefined` leaves them as they were.
   - `applyCombatModifiers(ruleRegistry, attacker, defender, terms)`.
 - `lib/rounds`, the arithmetic with no units or rules:
-  - `fight(attacker, defender, randomNumberGenerator)`, each side a `{ range, hitPoints, firepower }`.
-  - `combatOdds(a, d, hpA, hpD, fpA, fpD)`, the chance the attacker wins: ranges (as `rollRange` gives them), hit
-    points left and firepowers. A closed form (the attacker must win `ceil(hpD / fpA)` rounds before the defender wins
-    `ceil(hpA / fpD)`); the tests check it against an exhaustive count and a Monte Carlo of `fight`.
-  - `roundOdds(a, d)`, `rollRange(strength, scale)`, `roll(range, randomNumberGenerator)` and `deadlocked(...)`.
+  - `fight(attacker, defender, randomNumberGenerator, defenderRerolls?)`, each side a `{ range, hitPoints, firepower }`.
+  - `combatOdds(a, d, hpA, hpD, fpA, fpD, defenderRerolls?)`, the chance the attacker wins: ranges (as `rollRange`
+    gives them), hit points left and firepowers. A closed form (the attacker must win `ceil(hpD / fpA)` rounds before
+    the defender wins `ceil(hpA / fpD)`); the tests check it against an exhaustive count and a Monte Carlo of `fight`.
+  - `roundOdds(a, d)`, `rerolledRoundOdds(a, d, defenderRerolls?)` (the round's odds with the reroll: `roundOdds(a, d)
+    × (1 − roundOdds(d, a))`), `rollRange(strength, scale)`, `roll(range, randomNumberGenerator)` and `deadlocked(...)`.
 
 ## Not here
 
-- The original's barbarian rule, where a defender rerolls and the attacker has to win a round twice, isn't modelled.
-- Nor is the original's single-round mode (a scenario setting).
+- The original's single-round mode (a scenario setting).
